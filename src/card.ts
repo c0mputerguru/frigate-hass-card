@@ -1373,15 +1373,22 @@ class FrigateCard extends LitElement {
     }
 
     if (action === 'play') {
-      this._hass?.callService('media_player', 'play_media', {
-        entity_id: mediaPlayer,
-        media_content_id: media_content_id,
-        media_content_type: media_content_type,
-        extra: {
-          ...(title && { title: title }),
-          ...(thumbnail && { thumb: thumbnail }),
-        },
-      });
+      if (this._view?.is('live') && cameraEntity && cameraConfig?.webrtc_card) {
+        this._hass?.callService('webrtc', 'dash_cast', {
+          entity_id: mediaPlayer,
+          ...cameraConfig?.webrtc_card,
+        });
+      } else {
+        this._hass?.callService('media_player', 'play_media', {
+          entity_id: mediaPlayer,
+          media_content_id: media_content_id,
+          media_content_type: media_content_type,
+          extra: {
+            ...(title && { title: title }),
+            ...(thumbnail && { thumb: thumbnail }),
+          },
+        });
+      }
     } else if (action === 'stop') {
       this._hass?.callService('media_player', 'media_stop', {
         entity_id: mediaPlayer,
